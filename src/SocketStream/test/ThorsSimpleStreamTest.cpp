@@ -73,7 +73,7 @@ TEST(ThorsSimpleStreamTest, FullDownloadOperation)
     std::string const url     = schema + "://" + server + ":" + port + "/" + page;
 
     using ThorsAnvil::Stream::IThorSimpleStream;
-    IThorSimpleStream   input(url, true);
+    IThorSimpleStream   input(url, IThorSimpleStream::Greedy);
 
     std::string line;
 

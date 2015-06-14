@@ -21,18 +21,22 @@ extern "C"  size_t headFunc(char* ptr, size_t size, size_t nmemb, void* userdata
 class IThorStream;
 class IThorSimpleStream: public std::istream
 {
+    public:
+        enum RetrieveStratergy  { EasyCurl, Manually};
+        enum ReadStraergy       { OneBlock, Greedy };
+    private:
     friend class IThorStream;
     struct SimpleSocketStreamBuffer: public std::streambuf
     {
         typedef std::streambuf::traits_type traits;
         typedef traits::int_type            int_type;
  
-        SimpleSocketStreamBuffer(std::string const& url, bool useEasyCurl, bool preDownload, std::function<void()> markStreamBad)
+        SimpleSocketStreamBuffer(std::string const& url, RetrieveStratergy retrStrat, ReadStraergy readStrat, std::function<void()> markStreamBad)
             : empty(true)
             , open(true)
             , sizeMarked(false)
             , droppedData(false)
-            , preDownload(preDownload)
+            , readStrat(readStrat)
             , sizeLeft(0)
             , markStreamBad(markStreamBad)
         {
@@ -48,7 +52,7 @@ class IThorSimpleStream: public std::istream
             curl_easy_setopt(curl, CURLOPT_WRITEDATA,           this);
             curl_easy_setopt(curl, CURLOPT_PRIVATE,             this);
 
-            if (useEasyCurl)
+            if (retrStrat == EasyCurl)
             {
                 /* Perform the request, res will get the return code */
                 CURLcode result = curl_easy_perform(curl);
@@ -69,77 +73,82 @@ class IThorSimpleStream: public std::istream
 
             return EOF;
         }
-        protected:
-            friend size_t writeFunc(char* ptr, size_t size, size_t nmemb, void* userdata)
-            {
-                std::size_t     bytes = size*nmemb;
-
-                SimpleSocketStreamBuffer*  owner = reinterpret_cast<SimpleSocketStreamBuffer*>(userdata);
-                std::unique_lock<std::mutex>     lock(owner->mutex);
- 
-                if ((!owner->empty) && (!owner->preDownload))
-                {
-                    // Its not bad yet.
-                    // It only becomes bad if the user tries
-                    // to read any of this data. Then we mark
-                    // it bad. So the actual marking bad is done
-                    // in underflow().
-                    owner->droppedData=true;
-                    // This causes the connection to close.
-                    return 0;
-                }
-                owner->empty   = false;
-                std::size_t oldSize = owner->buffer.size();
-                owner->buffer.resize(oldSize + bytes);
-                std::copy(ptr, ptr + bytes, &owner->buffer[oldSize]);
-                owner->setg(&owner->buffer[0], &owner->buffer[0], &owner->buffer[oldSize + bytes]);
-                owner->cond.notify_one();
-                if (owner->sizeMarked)
-                {
-                    owner->sizeLeft -= bytes;
-                    owner->open      = (owner->sizeLeft != 0);
-                }
-                return bytes;
+        friend size_t writeFunc(char* ptr, size_t size, size_t nmemb, void* userdata)
+        {
+            if (userdata == nullptr) {
+                throw std::runtime_error("Failed on write callback");
             }
-            friend size_t headFunc(char* ptr, size_t size, size_t nmemb, void* userdata)
+            std::size_t     bytes = size*nmemb;
+
+            SimpleSocketStreamBuffer*       owner = reinterpret_cast<SimpleSocketStreamBuffer*>(userdata);
+            std::unique_lock<std::mutex>    lock(owner->mutex);
+ 
+            if ((!owner->empty) && (owner->readStrat == OneBlock))
             {
-                std::size_t     bytes = size*nmemb;
+                // Its not bad yet.
+                // It only becomes bad if the user tries
+                // to read any of this data. Then we mark
+                // it bad. So the actual marking bad is done
+                // in underflow().
+                owner->droppedData=true;
+                // This causes the connection to close.
+                return 0;
+            }
+            owner->empty   = false;
+            std::size_t oldSize = owner->buffer.size();
+            owner->buffer.insert(owner->buffer.end(), ptr, ptr + bytes);
+            owner->setg(&owner->buffer[0], &owner->buffer[0], &owner->buffer[oldSize + bytes]);
+            owner->cond.notify_one();
+            if (owner->sizeMarked)
+            {
+                owner->sizeLeft -= bytes;
+                owner->open      = (owner->sizeLeft != 0);
+            }
+            return bytes;
+        }
+        friend size_t headFunc(char* ptr, size_t size, size_t nmemb, void* userdata)
+        {
+            if (userdata == nullptr) {
+                throw std::runtime_error("Failed on head callback");
+            }
+            std::size_t     bytes = size*nmemb;
 
-                if ((bytes >= 5) && (strncmp(ptr, "HTTP/", 5) == 0))
+            if ((bytes >= 5) && (strncmp(ptr, "HTTP/", 5) == 0))
+            {
+                int   respCode  = 0;
+                char* space     = reinterpret_cast<char*>(memchr(ptr+5, ' ', bytes - 5));
+                std::string     code(space ? space : ptr, ptr+bytes);
+
+                if ((space != nullptr) && (sscanf(&code[0]," %d OK", &respCode) == 1) && (respCode == 200))
+                {   /* GOOD */ }
+                else
                 {
-                    int   respCode  = 0;
-                    char* space     = reinterpret_cast<char*>(memchr(ptr+5, ' ', bytes - 5));
-                    std::string     code(space ? space : ptr, ptr+bytes);
-
-                    if ((space != NULL) && (sscanf(&code[0]," %d OK", &respCode) == 1) && (respCode == 200))
-                    {   /* GOOD */ }
-                    else
-                    {
-                        SimpleSocketStreamBuffer*  owner = reinterpret_cast<SimpleSocketStreamBuffer*>(userdata);
-                        std::unique_lock<std::mutex>     lock(owner->mutex);
-                        owner->markStreamBad();
-                    }
-                }
-
-                if ((bytes >=15) && (strncmp(ptr, "Content-Length:", 15) == 0))
-                {   
                     SimpleSocketStreamBuffer*  owner = reinterpret_cast<SimpleSocketStreamBuffer*>(userdata);
                     std::unique_lock<std::mutex>     lock(owner->mutex);
-                    std::string                      code(ptr+15, ptr+bytes);
-                    owner->sizeLeft     = std::strtol(ptr+15, NULL, 10);
-                    owner->sizeMarked   = true;
-                    if (owner->preDownload)
-                    {
-                        owner->buffer.reserve(owner->sizeLeft);
-                    }
+                    owner->markStreamBad();
                 }
-                return size*nmemb;
             }
+
+            if ((bytes >=15) && (strncmp(ptr, "Content-Length:", 15) == 0))
+            {   
+                SimpleSocketStreamBuffer*  owner = reinterpret_cast<SimpleSocketStreamBuffer*>(userdata);
+                std::unique_lock<std::mutex>     lock(owner->mutex);
+                std::string                      code(ptr+15, ptr+bytes);
+                owner->sizeLeft     = std::strtol(ptr+15, nullptr, 10);
+                owner->sizeMarked   = true;
+                if (owner->readStrat == Greedy)
+                {
+                    owner->buffer.reserve(owner->sizeLeft);
+                }
+            }
+            return size*nmemb;
+        }
+        protected:
             bool                    empty;
             bool                    open;
             bool                    sizeMarked;
             bool                    droppedData;
-            bool                    preDownload;
+            ReadStraergy            readStrat;
             std::size_t             sizeLeft;
             std::mutex              mutex;
             std::condition_variable cond;
@@ -151,9 +160,9 @@ class IThorSimpleStream: public std::istream
     SimpleSocketStreamBuffer    buffer;
  
     public:
-        IThorSimpleStream(std::string const& url, bool preDownload = false)
-            : std::istream(NULL)
-            , buffer(url, true, preDownload, [this](){this->setstate(std::ios::badbit);})
+        IThorSimpleStream(std::string const& url, ReadStraergy readStrat = OneBlock)
+            : std::istream(nullptr)
+            , buffer(url, EasyCurl, readStrat, [this](){this->setstate(std::ios::badbit);})
         {
             std::istream::rdbuf(&buffer);
         }

@@ -79,7 +79,7 @@ class IThorStream: public std::istream
         typedef traits::int_type                                            int_type;
  
         SocketStreamBuffer(std::string const& url, std::function<void()> markStreamBad)
-            : SimpleSocketStreamBuffer(url, false, false, markStreamBad)
+            : SimpleSocketStreamBuffer(url, IThorSimpleStream::Manually, IThorSimpleStream::OneBlock, markStreamBad)
         {
             /* Perform the request, res will get the return code */
             ThorStreamManager::defaultManager().addHTTPRequest(curl);
