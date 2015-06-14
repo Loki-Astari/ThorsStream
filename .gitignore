@@ -17,5 +17,4 @@ config.status
 libtool
 stamp-h1
 confdefs.h
-src/BinaryRep/BinaryRepConfig.h
-src/Serialize/SerializeConfig.h
+src/SocketStream/SocketStreamConfig.h
