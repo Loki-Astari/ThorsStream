@@ -105,7 +105,6 @@ DIST_COMMON = $(srcdir)/Makefile.extra.am $(top_srcdir)/configure \
 am__CONFIG_DISTCLEAN_FILES = config.status config.cache config.log \
  configure.lineno config.status.lineno
 mkinstalldirs = $(install_sh) -d
-CONFIG_HEADER = $(top_builddir)/src/SocketStream/SocketStreamConfig.h
 CONFIG_CLEAN_FILES = Makefile.config
 CONFIG_CLEAN_VPATH_FILES =
 AM_V_P = $(am__v_P_@AM_V@)
@@ -172,7 +171,6 @@ am__DIST_COMMON = $(srcdir)/Makefile.config.in \
 	$(top_srcdir)/build/autotools/build/install-sh \
 	$(top_srcdir)/build/autotools/build/ltmain.sh \
 	$(top_srcdir)/build/autotools/build/missing \
-	$(top_srcdir)/src/SocketStream/SocketStreamConfig.h.in \
 	build/autotools/build/ar-lib build/autotools/build/compile \
 	build/autotools/build/config.guess \
 	build/autotools/build/config.sub \
@@ -390,21 +388,6 @@ $(top_srcdir)/configure:  $(am__configure_deps)
 $(ACLOCAL_M4):  $(am__aclocal_m4_deps)
 	$(am__cd) $(srcdir) && $(ACLOCAL) $(ACLOCAL_AMFLAGS)
 $(am__aclocal_m4_deps):
-
-src/SocketStream/SocketStreamConfig.h: src/SocketStream/stamp-h1
-	@test -f $@ || rm -f src/SocketStream/stamp-h1
-	@test -f $@ || $(MAKE) $(AM_MAKEFLAGS) src/SocketStream/stamp-h1
-
-src/SocketStream/stamp-h1: $(top_srcdir)/src/SocketStream/SocketStreamConfig.h.in $(top_builddir)/config.status
-	@rm -f src/SocketStream/stamp-h1
-	cd $(top_builddir) && $(SHELL) ./config.status src/SocketStream/SocketStreamConfig.h
-$(top_srcdir)/src/SocketStream/SocketStreamConfig.h.in:  $(am__configure_deps) 
-	($(am__cd) $(top_srcdir) && $(AUTOHEADER))
-	rm -f src/SocketStream/stamp-h1
-	touch $@
-
-distclean-hdr:
-	-rm -f src/SocketStream/SocketStreamConfig.h src/SocketStream/stamp-h1
 Makefile.config: $(top_builddir)/config.status $(srcdir)/Makefile.config.in
 	cd $(top_builddir) && $(SHELL) ./config.status $@
 
@@ -753,8 +736,8 @@ clean-am: clean-generic clean-libtool mostlyclean-am
 distclean: distclean-recursive
 	-rm -f $(am__CONFIG_DISTCLEAN_FILES)
 	-rm -f Makefile.extra
-distclean-am: clean-am distclean-generic distclean-hdr \
-	distclean-libtool distclean-tags
+distclean-am: clean-am distclean-generic distclean-libtool \
+	distclean-tags
 
 dvi: dvi-recursive
 
@@ -823,17 +806,16 @@ uninstall-am:
 	clean-libtool cscope cscopelist-am ctags ctags-am dist \
 	dist-all dist-bzip2 dist-gzip dist-lzip dist-shar dist-tarZ \
 	dist-xz dist-zip distcheck distclean distclean-generic \
-	distclean-hdr distclean-libtool distclean-tags distcleancheck \
-	distdir distuninstallcheck dvi dvi-am html html-am info \
-	info-am install install-am install-data install-data-am \
-	install-dvi install-dvi-am install-exec install-exec-am \
-	install-html install-html-am install-info install-info-am \
-	install-man install-pdf install-pdf-am install-ps \
-	install-ps-am install-strip installcheck installcheck-am \
-	installdirs installdirs-am maintainer-clean \
-	maintainer-clean-generic mostlyclean mostlyclean-generic \
-	mostlyclean-libtool pdf pdf-am ps ps-am tags tags-am uninstall \
-	uninstall-am
+	distclean-libtool distclean-tags distcleancheck distdir \
+	distuninstallcheck dvi dvi-am html html-am info info-am \
+	install install-am install-data install-data-am install-dvi \
+	install-dvi-am install-exec install-exec-am install-html \
+	install-html-am install-info install-info-am install-man \
+	install-pdf install-pdf-am install-ps install-ps-am \
+	install-strip installcheck installcheck-am installdirs \
+	installdirs-am maintainer-clean maintainer-clean-generic \
+	mostlyclean mostlyclean-generic mostlyclean-libtool pdf pdf-am \
+	ps ps-am tags tags-am uninstall uninstall-am
 
 .PRECIOUS: Makefile.extra
 

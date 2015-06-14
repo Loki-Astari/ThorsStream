@@ -17,4 +17,3 @@ config.status
 libtool
 stamp-h1
 confdefs.h
-src/SocketStream/SocketStreamConfig.h

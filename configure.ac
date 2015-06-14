@@ -19,6 +19,5 @@ AX_THOR_FUNC_LANG_FLAG(14)
 
 
 AM_INIT_AUTOMAKE([foreign -Wall -Werror])
-AC_CONFIG_HEADERS([ src/SocketStream/SocketStreamConfig.h ])
 AC_CONFIG_FILES([Makefile.extra Makefile.config])
 AC_OUTPUT
