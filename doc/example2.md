@@ -8,15 +8,15 @@ An alternative version of the class can be used. This will download the data asy
 
 ````c++
     // Asynchronous download of data.
-    // Reuqires you to link against ThorsStream.so (or whatever platform extension for shared libraries).
+    // Requires you to link against ThorSocketStream14.so (or whatever platform extension for shared libraries).
     //
-    #include "ThorsSocketStream/ThorsStream.h"
+    #include "ThorSocketStream/ThorsStream.h"
 
     int main()
     {
         namespace thor  = ThorsAnvil::Stream;
 
-        // The IThorStream downlaods data asyncroniously in the background.
+        // The IThorStream downloads data asynchronously in the background.
         thor::IThorStream     stream("https://api.twitter.com/1.1/help/privacy.json");
 
         std::string line;

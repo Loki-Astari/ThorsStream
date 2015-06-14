@@ -8,7 +8,9 @@ Simple easy to use stream library that does HTTP.
 
 ````c++
     // Header only library
-    #include "ThorsSocketStream/ThorsSimpleStream.h"
+    #include "ThorSocketStream/ThorsSimpleStream.h"
+    #include <iostream>
+    #include <string>
 
     int main()
     {
@@ -35,7 +37,7 @@ The first version is designed for speed and ease of use. The cost is that it may
 
 ````c++
     // Header only library
-    #include "ThorsSocketStream/ThorsSimpleStream.h"
+    #include "ThorSocketStream/ThorsSimpleStream.h"
 
     int main()
     {

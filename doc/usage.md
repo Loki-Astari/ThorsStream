@@ -15,6 +15,7 @@
 ````
     Defined in:     ThorsSocketStream/ThorsSimpleStream.h
     Interface:      std::istream
+    libraries:      -lcurl
     Constructor:
         IThorSimpleStream(std::string const& url, bool preDownload = false)
 
@@ -33,6 +34,7 @@
 
     Defined in:     ThorsSocketStream/ThorsStream.h
     Interface:      std::istream
+    libraries:      -lThorSocketStream14 -lcurl
     Constructor:
         IThorStream(std::string const& url)
 
