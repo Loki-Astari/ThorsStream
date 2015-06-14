@@ -26,9 +26,28 @@ TEST(ThorsStreamTest, NormalOperation)
     IThorStream   input(url);
 
     std::string line;
+    std::getline(input, line);
+    EXPECT_EQ(line, "<html><head><title>ThorsStream Test</title></head>");
+
+    std::getline(input, line);
+    EXPECT_EQ(line, "<body>");
+
+    std::getline(input, line);
+    EXPECT_EQ(line, "    Line 1");
+
+    std::getline(input, line);
+    EXPECT_EQ(line, "    Line 2");
+
+    std::getline(input, line);
+    EXPECT_EQ(line, "</body>");
+
+    std::getline(input, line);
+    EXPECT_EQ(line, "</html>");
+
     while(std::getline(input, line))
     {
-        std::cout << "L:" << line << "\n";
     }
+    EXPECT_TRUE(input.eof());
+    EXPECT_TRUE(input.fail());
 }
 

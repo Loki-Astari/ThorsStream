@@ -36,7 +36,7 @@ before_install:
     - if [ "$TRAVIS_OS_NAME" == "linux" ];  then sudo apt-get install nginx;fi
     - if [ "$TRAVIS_OS_NAME" == "linux" ];  then sed -e 's/.*listen   80;.*/listen 8090;/'  /etc/nginx/sites-enabled/default > tmp;fi
     - if [ "$TRAVIS_OS_NAME" == "linux" ];  then sudo mv tmp /etc/nginx/sites-enabled/default;fi
-    - if [ "$TRAVIS_OS_NAME" == "osx" ];    then sudo cp src/SocketStream/test/data/ThorStreamTest.html /usr/share/nginx/www/;fi
+    - if [ "$TRAVIS_OS_NAME" == "linux" ];  then sudo cp src/SocketStream/test/data/ThorStreamTest.html /usr/share/nginx/www/;fi
     - if [ "$TRAVIS_OS_NAME" == "linux" ];  then sudo nginx;fi
 install:
     - ./configure

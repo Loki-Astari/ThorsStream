@@ -8,6 +8,7 @@
 #include <vector>
 #include <curl/curl.h>
 #include <string.h>
+#include <cstdlib>
 
 namespace ThorsAnvil
 {
@@ -84,7 +85,8 @@ class IThorSimpleStream: public std::istream
                     // it bad. So the actual marking bad is done
                     // in underflow().
                     owner->droppedData=true;
-                    return 0;//CURL_WRITEFUNC_PAUSE;
+                    // This causes the connection to close.
+                    return 0;
                 }
                 owner->empty   = false;
                 std::size_t oldSize = owner->buffer.size();
@@ -101,12 +103,15 @@ class IThorSimpleStream: public std::istream
             }
             friend size_t headFunc(char* ptr, size_t size, size_t nmemb, void* userdata)
             {
-                if (strncmp(ptr, "HTTP/", 5) == 0)
+                std::size_t     bytes = size*nmemb;
+
+                if ((bytes >= 5) && (strncmp(ptr, "HTTP/", 5) == 0))
                 {
                     int   respCode  = 0;
-                    char* space     = strchr(ptr+5, ' ');
+                    char* space     = reinterpret_cast<char*>(memchr(ptr+5, ' ', bytes - 5));
+                    std::string     code(space ? space : ptr, ptr+bytes);
 
-                    if ((space != NULL) && (sscanf(space," %d OK", & respCode) == 1) && (respCode == 200))
+                    if ((space != NULL) && (sscanf(&code[0]," %d OK", &respCode) == 1) && (respCode == 200))
                     {   /* GOOD */ }
                     else
                     {
@@ -116,11 +121,12 @@ class IThorSimpleStream: public std::istream
                     }
                 }
 
-                if (strncmp(ptr, "Content-Length:", 15) == 0)
+                if ((bytes >=15) && (strncmp(ptr, "Content-Length:", 15) == 0))
                 {   
                     SimpleSocketStreamBuffer*  owner = reinterpret_cast<SimpleSocketStreamBuffer*>(userdata);
                     std::unique_lock<std::mutex>     lock(owner->mutex);
-                    owner->sizeLeft     = atoi(ptr+15);
+                    std::string                      code(ptr+15, ptr+bytes);
+                    owner->sizeLeft     = std::strtol(ptr+15, NULL, 10);
                     owner->sizeMarked   = true;
                     if (owner->preDownload)
                     {

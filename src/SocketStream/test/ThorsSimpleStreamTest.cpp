@@ -26,10 +26,39 @@ TEST(ThorsSimpleStreamTest, NormalOperation)
     IThorSimpleStream   input(url);
 
     std::string line;
+
+    std::getline(input, line);
+    EXPECT_EQ(line, "<html><head><title>ThorsStream Test</title></head>");
+
+    std::getline(input, line);
+    EXPECT_EQ(line, "<body>");
+
+    std::getline(input, line);
+    EXPECT_EQ(line, "    Line 1");
+
+    std::getline(input, line);
+    EXPECT_EQ(line, "    Line 2");
+
+    std::getline(input, line);
+    EXPECT_EQ(line, "</body>");
+
+    std::getline(input, line);
+    EXPECT_EQ(line, "</html>");
+
+
+    // NOTE: The test data is large enough that the server will not
+    //       send it in one block (see test/data/ThorStreamTest.html)
+    //       as a IThorSimpleStream will underflow and set the bad bit
+    //       to true because we dropped data.
+    //       eof() is also correctly set.
     while(std::getline(input, line))
     {
-        std::cout << "L:" << line << "\n";
+        if (input.eof()) {
+            break;
+        }
     }
+    EXPECT_TRUE(input.eof());
+    EXPECT_TRUE(input.fail());
 }
 
 TEST(ThorsSimpleStreamTest, FullDownloadOperation)
@@ -47,8 +76,36 @@ TEST(ThorsSimpleStreamTest, FullDownloadOperation)
     IThorSimpleStream   input(url, true);
 
     std::string line;
+
+    std::getline(input, line);
+    EXPECT_EQ(line, "<html><head><title>ThorsStream Test</title></head>");
+
+    std::getline(input, line);
+    EXPECT_EQ(line, "<body>");
+
+    std::getline(input, line);
+    EXPECT_EQ(line, "    Line 1");
+
+    std::getline(input, line);
+    EXPECT_EQ(line, "    Line 2");
+
+    std::getline(input, line);
+    EXPECT_EQ(line, "</body>");
+
+    std::getline(input, line);
+    EXPECT_EQ(line, "</html>");
+
+
+    // NOTE: The test data is large enough that the server will not
+    //       send it in one block (see test/data/ThorStreamTest.html)
+    //       but this object fetches everything into the local buffer
+    //       as a result it will not fail.
     while(std::getline(input, line))
     {
-        std::cout << "L:" << line << "\n";
+        if (input.eof()) {
+            break;
+        }
     }
+    EXPECT_TRUE(input.eof());
+    EXPECT_FALSE(input.fail());
 }
