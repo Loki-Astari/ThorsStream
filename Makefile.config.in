@@ -1,0 +1,13 @@
+
+CXX=@CXX@
+COV=@COV@
+
+CXXSTDVER=@CXXSTDVER@
+CXX_STD_FLAG=@CXX_STD_FLAG@
+
+prefix?=@prefix@
+exec_prefix?=@exec_prefix@
+bindir?=@bindir@
+libdir?=@libdir@
+includedir?=@includedir@
+
