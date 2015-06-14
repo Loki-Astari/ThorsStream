@@ -7,6 +7,8 @@ os:
 compiler:
     - gcc
     - clang
+env:
+    - THOR_STREAM_TEST_PORT=8090
 before_install:
     - mv .gitmodules gitmodules.old
     - sed -e 's#git@\([^:]*\):#https://\1/#' gitmodules.old > .gitmodules
@@ -25,6 +27,17 @@ before_install:
     - if [ "$TRAVIS_OS_NAME" == "linux" -a "$CXX" == "clang++" ]; then a=$(sudo find / -name llvm-cov | grep 3.5 | head -1);sudo ln -s ${a} /usr/bin/llvm-cov;fi
     - if [ "$TRAVIS_OS_NAME" == "linux" -a "$CXX" == "clang++" ]; then a=$(sudo find / -name llvm-cov | grep 3.4 | head -1);sudo mv ${a} ${a}.old;fi
     - if [ "$TRAVIS_OS_NAME" == "osx"   -a "$CXX" == "clang++" ]; then sudo ln -s /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/llvm-cov /usr/local/bin/llvm-cov; fi
+    - if [ "$TRAVIS_OS_NAME" == "osx" ];    then sudo chmod 777 /usr/local/lib/pkgconfig; fi
+    - if [ "$TRAVIS_OS_NAME" == "osx" ];    then brew install nginx; fi
+    - if [ "$TRAVIS_OS_NAME" == "osx" ];    then sed -e 's/listen 8080;/listen 8090;/' /usr/local/etc/nginx/nginx.conf > tmp;fi
+    - if [ "$TRAVIS_OS_NAME" == "osx" ];    then sudo mv tmp /usr/local/etc/nginx/nginx.conf;fi
+    - if [ "$TRAVIS_OS_NAME" == "osx" ];    then sudo cp src/SocketStream/test/data/ThorStreamTest.html /usr/local/var/www/;fi
+    - if [ "$TRAVIS_OS_NAME" == "osx" ];    then sudo nginx;fi
+    - if [ "$TRAVIS_OS_NAME" == "linux" ];  then sudo apt-get install nginx;fi
+    - if [ "$TRAVIS_OS_NAME" == "linux" ];  then sed -e 's/.*listen   80;.*/listen 8090;/'  /etc/nginx/sites-enabled/default > tmp;fi
+    - if [ "$TRAVIS_OS_NAME" == "linux" ];  then sudo mv tmp /etc/nginx/sites-enabled/default;fi
+    - if [ "$TRAVIS_OS_NAME" == "osx" ];    then sudo cp src/SocketStream/test/data/ThorStreamTest.html /usr/share/nginx/www/;fi
+    - if [ "$TRAVIS_OS_NAME" == "linux" ];  then sudo nginx;fi
 install:
     - ./configure
 script:
