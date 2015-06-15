@@ -16,6 +16,12 @@ LT_INIT
 AX_CHECK_COMPILE_FLAG([-ansi], [AC_SUBST([CXXFLAGS], ["$CXXFLAGS -ansi"])])
 
 AX_THOR_FUNC_LANG_FLAG(14)
+AC_CHECK_LIB([curl], [curl_easy_init], [], [AC_MSG_ERROR([
+ 
+Error: Could not find libcurl
+
+                ], [1])]
+            )
 
 
 AM_INIT_AUTOMAKE([foreign -Wall -Werror])
