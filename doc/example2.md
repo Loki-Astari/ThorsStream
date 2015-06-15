@@ -1,7 +1,7 @@
 [![endorse](http://api.coderwall.com/lokiastari/endorsecount.png)](http://coderwall.com/lokiastari)
 [![Build Status](https://travis-ci.org/Loki-Astari/ThorsStream.svg?branch=master)](https://travis-ci.org/Loki-Astari/ThorsStream)
 
-![ThorStream](img/stream.jpg)
+![ThorStream](../img/stream.jpg)
 
 ###Example Usage
 An alternative version of the class can be used. This will download the data asynchronously in the background. If you run out of data the stream will block the main thread while more data is retrieved. But since the download is asynchronous it is unlikely to stop unless this is a real slow connection. The background thread buffers up data until the stream has an underflow then sets the data as the source.
