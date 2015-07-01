@@ -42,6 +42,8 @@ install:
     - ./configure
 script:
     - make 
+after_success:
+    - ./uploadcodecovrage
 branches:
   only:
       - master
