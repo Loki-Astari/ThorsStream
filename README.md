@@ -1,7 +1,10 @@
 [![endorse](http://api.coderwall.com/lokiastari/endorsecount.png)](http://coderwall.com/lokiastari)
 [![Build Status](https://travis-ci.org/Loki-Astari/ThorsStream.svg?branch=master)](https://travis-ci.org/Loki-Astari/ThorsStream)
 ![Repo Size](https://reposs.herokuapp.com/?path=Loki-Astari/ThorsStream)
-[![codecov.io](http://codecov.io/github/Loki-Astari/ThorsStream/coverage.svg?branch=master)](http://codecov.io/github/Loki-Astari/ThorsStream?branch=master)
+[![codecov.io](http://codecov.io/github/Loki-Astari/ThorsStream/coverage.svg?branch=master)](http://codecov.io/github/Loki-Astari/ThorsStream?branch=master)  
+[![Code Review](http://www.zomis.net/codereview/shield/?qid=38455)](http://codereview.stackexchange.com/q/38455/507)
+[![Code Review](http://www.zomis.net/codereview/shield/?qid=38402)](http://codereview.stackexchange.com/q/38402/507)
+
 
 ![ThorStream](img/stream.jpg)
 
