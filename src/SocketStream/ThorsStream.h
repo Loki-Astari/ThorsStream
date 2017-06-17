@@ -1,4 +1,3 @@
-
 #ifndef THORSANVIL_STREAM_THOR_STREAM_H
 #define THORSANVIL_STREAM_THOR_STREAM_H
 
@@ -77,7 +76,7 @@ class IThorStream: public std::istream
         public:
         typedef IThorSimpleStream::SimpleSocketStreamBuffer::traits_type    traits;
         typedef traits::int_type                                            int_type;
- 
+
         SocketStreamBuffer(std::string const& url, std::function<void()> markStreamBad)
             : SimpleSocketStreamBuffer(url, IThorSimpleStream::Manually, IThorSimpleStream::OneBlock, markStreamBad)
         {
@@ -111,11 +110,11 @@ class IThorStream: public std::istream
             open    = false;
             cond.notify_one();
         }
- 
+
     };
- 
+
     SocketStreamBuffer    buffer;
- 
+
     public:
         IThorStream(std::string const& url)
             : std::istream(NULL)
@@ -129,5 +128,3 @@ class IThorStream: public std::istream
 }
 
 #endif
-
-

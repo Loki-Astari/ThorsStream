@@ -1,4 +1,3 @@
-
 #ifndef THORSANVIL_SIMPLE_STREAM_THOR_STREAM_H
 #define THORSANVIL_SIMPLE_STREAM_THOR_STREAM_H
 
@@ -30,7 +29,7 @@ class IThorSimpleStream: public std::istream
     {
         typedef std::streambuf::traits_type traits;
         typedef traits::int_type            int_type;
- 
+
         SimpleSocketStreamBuffer(std::string const& url, RetrieveStratergy retrStrat, ReadStraergy readStrat, std::function<void()> markStreamBad)
             : empty(true)
             , open(true)
@@ -41,7 +40,7 @@ class IThorSimpleStream: public std::istream
             , markStreamBad(markStreamBad)
         {
             curl = curl_easy_init();
-            if(!curl)
+            if (!curl)
             {   markStreamBad();
             }
             curl_easy_setopt(curl, CURLOPT_URL,                 url.c_str());
@@ -75,14 +74,15 @@ class IThorSimpleStream: public std::istream
         }
         friend size_t writeFunc(char* ptr, size_t size, size_t nmemb, void* userdata)
         {
-            if (userdata == nullptr) {
+            if (userdata == nullptr)
+            {
                 throw std::runtime_error("Failed on write callback");
             }
             std::size_t     bytes = size*nmemb;
 
             SimpleSocketStreamBuffer*       owner = reinterpret_cast<SimpleSocketStreamBuffer*>(userdata);
             std::unique_lock<std::mutex>    lock(owner->mutex);
- 
+
             if ((!owner->empty) && (owner->readStrat == OneBlock))
             {
                 // Its not bad yet.
@@ -108,7 +108,8 @@ class IThorSimpleStream: public std::istream
         }
         friend size_t headFunc(char* ptr, size_t size, size_t nmemb, void* userdata)
         {
-            if (userdata == nullptr) {
+            if (userdata == nullptr)
+            {
                 throw std::runtime_error("Failed on head callback");
             }
             std::size_t     bytes = size*nmemb;
@@ -130,7 +131,7 @@ class IThorSimpleStream: public std::istream
             }
 
             if ((bytes >=15) && (strncmp(ptr, "Content-Length:", 15) == 0))
-            {   
+            {
                 SimpleSocketStreamBuffer*  owner = reinterpret_cast<SimpleSocketStreamBuffer*>(userdata);
                 std::unique_lock<std::mutex>     lock(owner->mutex);
                 std::string                      code(ptr+15, ptr+bytes);
@@ -156,9 +157,9 @@ class IThorSimpleStream: public std::istream
             CURL*                   curl;
             std::function<void()>   markStreamBad;
     };
- 
+
     SimpleSocketStreamBuffer    buffer;
- 
+
     public:
         IThorSimpleStream(std::string const& url, ReadStraergy readStrat = OneBlock)
             : std::istream(nullptr)
@@ -172,5 +173,3 @@ class IThorSimpleStream: public std::istream
 }
 
 #endif
-
-
