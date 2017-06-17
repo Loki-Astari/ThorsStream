@@ -684,6 +684,8 @@ StdFlag17
 StdFlag14
 StdFlag11
 CXXMaxLanguage
+NO_DEPRECATED_REGISTER_TEST
+NO_UNUSED_PRIVATE_FIELD_TEST
 CXXCPP
 CPP
 LT_SYS_LIBRARY_PATH
@@ -722,6 +724,8 @@ build_cpu
 build
 LIBTOOL
 COV
+VERA
+TestVera
 OBJEXT
 EXEEXT
 ac_ct_CXX
@@ -772,6 +776,8 @@ SHELL'
 ac_subst_files=''
 ac_user_opts='
 enable_option_checking
+with_thor_build_on_travis
+enable_vera
 enable_shared
 enable_static
 with_pic
@@ -1415,6 +1421,8 @@ Optional Features:
   --disable-option-checking  ignore unrecognized --enable/--with options
   --disable-FEATURE       do not include FEATURE (same as --enable-FEATURE=no)
   --enable-FEATURE[=ARG]  include FEATURE [ARG=yes]
+  --disable-vera          Disable vera. Disable Static analysis of source.
+
   --enable-shared[=PKGS]  build shared libraries [default=yes]
   --enable-static[=PKGS]  build static libraries [default=yes]
   --enable-fast-install[=PKGS]
@@ -1430,6 +1438,9 @@ Optional Features:
 Optional Packages:
   --with-PACKAGE[=ARG]    use PACKAGE [ARG=yes]
   --without-PACKAGE       do not use PACKAGE (same as --with-PACKAGE=no)
+  --with-thor-build-on-travis
+                          Used by travis to install and do some configuration
+
   --with-pic[=PKGS]       try to use only PIC/non-PIC objects [default=use
                           both]
   --with-aix-soname=aix|svr4|both
@@ -2873,15 +2884,33 @@ ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $
 ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 
+
+
+# Check whether --with-thor-build-on-travis was given.
+if test "${with_thor_build_on_travis+set}" = set; then :
+  withval=$with_thor_build_on_travis;
+fi
+
+
+
+(
+    cd .
+    if test "${with_thor-build-on-travis}" == ""; then :
+
+else
+
+    mv .gitmodules gitmodules.old
+    sed -e 's#git@\([^:]*\):#https://\1/#' gitmodules.old > .gitmodules
+
+
+fi
     git submodule init
     if git submodule update; then :
 
 else
   as_fn_error $? "
 
-
 git submodule updated failed:
-
 Currently all Loki-Astari submodules are retrieved using ssh.
 If the above command failed it probably means that you have not registered your \"public key\" with github.com
 
@@ -2896,6 +2925,135 @@ git submodule update
         " "$LINENO" 5
 
 fi
+    mv gitmodules.old .gitmodules
+)
+
+
+(
+    cd build
+    if test "${with_thor-build-on-travis}" == ""; then :
+
+else
+
+    mv .gitmodules gitmodules.old
+    sed -e 's#git@\([^:]*\):#https://\1/#' gitmodules.old > .gitmodules
+
+
+fi
+    git submodule init
+    if git submodule update; then :
+
+else
+  as_fn_error $? "
+
+git submodule updated failed:
+Currently all Loki-Astari submodules are retrieved using ssh.
+If the above command failed it probably means that you have not registered your \"public key\" with github.com
+
+See this article on StackOverflow for simple instructions:
+http://stackoverflow.com/questions/25828483/github-permission-denied-publickey
+
+
+Once you have installed the keys you can restart the configuration with:
+git submodule update
+./configure <Same Flags You had before>
+
+        " "$LINENO" 5
+
+fi
+    mv gitmodules.old .gitmodules
+)
+
+
+    if test "${with_thor-build-on-travis}" == ""; then :
+
+else
+
+(
+    ./build/third/vera-install
+)
+
+
+
+fi
+
+
+
+    # Check whether --enable-vera was given.
+if test "${enable_vera+set}" = set; then :
+  enableval=$enable_vera;
+fi
+
+
+    VERA="";
+    if test "x$enable_vera" == "xno"; then :
+
+            VERA='echo "Disabled Static Analysis" ||';
+
+else
+
+            VERA='vera++';
+            for ac_prog in vera++
+do
+  # Extract the first word of "$ac_prog", so it can be a program name with args.
+set dummy $ac_prog; ac_word=$2
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
+$as_echo_n "checking for $ac_word... " >&6; }
+if ${ac_cv_prog_TestVera+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  if test -n "$TestVera"; then
+  ac_cv_prog_TestVera="$TestVera" # Let the user override the test.
+else
+as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+as_dummy="${PATH}:./build/bin"
+for as_dir in $as_dummy
+do
+  IFS=$as_save_IFS
+  test -z "$as_dir" && as_dir=.
+    for ac_exec_ext in '' $ac_executable_extensions; do
+  if as_fn_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
+    ac_cv_prog_TestVera="$ac_prog"
+    $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
+    break 2
+  fi
+done
+  done
+IFS=$as_save_IFS
+
+fi
+fi
+TestVera=$ac_cv_prog_TestVera
+if test -n "$TestVera"; then
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $TestVera" >&5
+$as_echo "$TestVera" >&6; }
+else
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+fi
+
+
+  test -n "$TestVera" && break
+done
+test -n "$TestVera" || TestVera=":"
+
+            if test "$TestVera" == ":"; then :
+
+                    as_fn_error $? "
+
+By default the build tools use vera++ for static analysis of C++ code to ensure the project
+maintains a consistent style when people add pull requests. The configuration tests have
+detected that \"vera++\" (the static analysis tool) is not currently installed.
+
+
+" "$LINENO" 5
+
+fi
+
+
+fi
+    VERA=${VERA}
+
 
 
     pushd build/third
@@ -3245,8 +3403,8 @@ esac
 
 
 
-macro_version='2.4.5'
-macro_revision='2.4.5'
+macro_version='2.4.6'
+macro_revision='2.4.6'
 
 
 
@@ -15292,6 +15450,86 @@ fi
 
 
 
+
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking whether C compiler accepts -Wno-unused-private-field" >&5
+$as_echo_n "checking whether C compiler accepts -Wno-unused-private-field... " >&6; }
+if ${ax_cv_check_cflags___Wno_unused_private_field+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+
+  ax_check_save_flags=$CFLAGS
+  CFLAGS="$CFLAGS  -Wno-unused-private-field"
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+int
+main ()
+{
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_compile "$LINENO"; then :
+  ax_cv_check_cflags___Wno_unused_private_field=yes
+else
+  ax_cv_check_cflags___Wno_unused_private_field=no
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+  CFLAGS=$ax_check_save_flags
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ax_cv_check_cflags___Wno_unused_private_field" >&5
+$as_echo "$ax_cv_check_cflags___Wno_unused_private_field" >&6; }
+if test "x$ax_cv_check_cflags___Wno_unused_private_field" = xyes; then :
+  NO_UNUSED_PRIVATE_FIELD_TEST=-Wno-unused-private-field
+
+
+else
+  :
+fi
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking whether C compiler accepts -Wno-deprecated-register" >&5
+$as_echo_n "checking whether C compiler accepts -Wno-deprecated-register... " >&6; }
+if ${ax_cv_check_cflags___Wno_deprecated_register+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+
+  ax_check_save_flags=$CFLAGS
+  CFLAGS="$CFLAGS  -Wno-deprecated-register"
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+int
+main ()
+{
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_compile "$LINENO"; then :
+  ax_cv_check_cflags___Wno_deprecated_register=yes
+else
+  ax_cv_check_cflags___Wno_deprecated_register=no
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+  CFLAGS=$ax_check_save_flags
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ax_cv_check_cflags___Wno_deprecated_register" >&5
+$as_echo "$ax_cv_check_cflags___Wno_deprecated_register" >&6; }
+if test "x$ax_cv_check_cflags___Wno_deprecated_register" = xyes; then :
+  NO_DEPRECATED_REGISTER_TEST=-Wno-deprecated-register
+
+
+else
+  :
+fi
+
+
+
+
+
         minLangFeature=14
         if test "" = ""; then :
   maxLangFeature=17
@@ -16482,7 +16720,7 @@ END
   fi
 fi
 
-ac_config_files="$ac_config_files Makefile.extra Makefile.config"
+ac_config_files="$ac_config_files Makefile.extra Makefile.config:build/autotools/build/Makefile.config.in:Makefile.config.in"
 
 cat >confcache <<\_ACEOF
 # This file is a shell script that caches the results of configure
@@ -17611,7 +17849,7 @@ do
     "libtool") CONFIG_COMMANDS="$CONFIG_COMMANDS libtool" ;;
     "depfiles") CONFIG_COMMANDS="$CONFIG_COMMANDS depfiles" ;;
     "Makefile.extra") CONFIG_FILES="$CONFIG_FILES Makefile.extra" ;;
-    "Makefile.config") CONFIG_FILES="$CONFIG_FILES Makefile.config" ;;
+    "Makefile.config") CONFIG_FILES="$CONFIG_FILES Makefile.config:build/autotools/build/Makefile.config.in:Makefile.config.in" ;;
 
   *) as_fn_error $? "invalid argument: \`$ac_config_target'" "$LINENO" 5;;
   esac

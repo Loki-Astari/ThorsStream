@@ -165,6 +165,7 @@ CSCOPE = cscope
 DIST_SUBDIRS = $(SUBDIRS)
 am__DIST_COMMON = $(srcdir)/Makefile.config.in \
 	$(srcdir)/Makefile.extra.in \
+	$(top_srcdir)/build/autotools/build/Makefile.config.in \
 	$(top_srcdir)/build/autotools/build/compile \
 	$(top_srcdir)/build/autotools/build/config.guess \
 	$(top_srcdir)/build/autotools/build/config.sub \
@@ -275,6 +276,8 @@ MANIFEST_TOOL = @MANIFEST_TOOL@
 MKDIR_P = @MKDIR_P@
 NM = @NM@
 NMEDIT = @NMEDIT@
+NO_DEPRECATED_REGISTER_TEST = @NO_DEPRECATED_REGISTER_TEST@
+NO_UNUSED_PRIVATE_FIELD_TEST = @NO_UNUSED_PRIVATE_FIELD_TEST@
 OBJDUMP = @OBJDUMP@
 OBJEXT = @OBJEXT@
 OTOOL = @OTOOL@
@@ -295,7 +298,9 @@ STRIP = @STRIP@
 StdFlag11 = @StdFlag11@
 StdFlag14 = @StdFlag14@
 StdFlag17 = @StdFlag17@
+TestVera = @TestVera@
 UNZIP = @UNZIP@
+VERA = @VERA@
 VERSION = @VERSION@
 WGET = @WGET@
 abs_builddir = @abs_builddir@
@@ -388,7 +393,7 @@ $(top_srcdir)/configure:  $(am__configure_deps)
 $(ACLOCAL_M4):  $(am__aclocal_m4_deps)
 	$(am__cd) $(srcdir) && $(ACLOCAL) $(ACLOCAL_AMFLAGS)
 $(am__aclocal_m4_deps):
-Makefile.config: $(top_builddir)/config.status $(srcdir)/Makefile.config.in
+Makefile.config: $(top_builddir)/config.status $(top_srcdir)/build/autotools/build/Makefile.config.in $(srcdir)/Makefile.config.in
 	cd $(top_builddir) && $(SHELL) ./config.status $@
 
 mostlyclean-libtool:

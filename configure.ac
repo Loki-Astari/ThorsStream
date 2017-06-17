@@ -25,5 +25,5 @@ Error: Could not find libcurl
 
 
 AM_INIT_AUTOMAKE([foreign -Wall -Werror])
-AC_CONFIG_FILES([Makefile.extra Makefile.config])
+AC_CONFIG_FILES([Makefile.extra Makefile.config:build/autotools/build/Makefile.config.in:Makefile.config.in])
 AC_OUTPUT
