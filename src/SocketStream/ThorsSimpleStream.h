@@ -4,6 +4,7 @@
 #include <istream>
 #include <mutex>
 #include <condition_variable>
+#include <functional>
 #include <vector>
 #include <curl/curl.h>
 #include <string.h>
