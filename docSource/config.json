@@ -3,5 +3,8 @@
     "title": "ThorsStream",
     "description": "Socket objects that act like std::iostream objects",
     "theme": "documentation",
-    "themeGit": "git@github.com:Loki-Astari/andvari-theme-documentation.git"
+    "themeGit": "git@github.com:Loki-Astari/andvari-theme-documentation.git",
+    "toc": [
+        {"name": "Introduction", "value": "intro.md"}
+    ]
 }
