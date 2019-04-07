@@ -791,6 +791,7 @@ with_boost
 with_boost_libdir
 with_boost_python
 enable_vera
+with_hostbuild
 enable_shared
 enable_static
 with_pic
@@ -1463,6 +1464,8 @@ Optional Packages:
                           libraries are located.
   --with-boost-python     specify yes/no or the boost python library or suffix
                           to use
+  --with-hostbuild=<dir>  Use the build tools located at <dir>
+
   --with-pic[=PKGS]       try to use only PIC/non-PIC objects [default=use
                           both]
   --with-aix-soname=aix|svr4|both
@@ -4745,9 +4748,11 @@ fi
 
 
     VERATOOL="";
+    subconfigvera=""
     if test "x$enable_vera" == "xno"; then :
 
-            VERATOOL='echo "Disabled Static Analysis" ||';
+            VERATOOL='off';
+            subconfigvera="--disable-vera";
 
 else
 
@@ -4834,10 +4839,30 @@ fi
 
 
 
-    pushd build/third
-    ./setup "$CXX" || as_fn_error 1 "Failed to set up the test utilities" "$LINENO" 5
-    popd
 
+# Check whether --with-hostbuild was given.
+if test "${with_hostbuild+set}" = set; then :
+  withval=$with_hostbuild;
+fi
+
+
+    if test "${with_hostbuild}" != ""; then :
+
+            rm -rf build;
+            ln -s ${with_hostbuild} build
+
+
+fi
+
+
+    if test "${with_hostbuild}" == ""; then :
+
+            pushd build/third
+            ./setup "$CXX" || as_fn_error 1 "Failed to set up the test utilities" "$LINENO" 5
+            popd
+
+
+fi
 
 
 
