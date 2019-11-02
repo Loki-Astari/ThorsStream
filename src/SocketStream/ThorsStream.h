@@ -87,7 +87,11 @@ class IThorStream: public std::istream
         {
             ThorStreamManager::defaultManager().delHTTPRequest(curl);
         }
-        virtual int_type underflow()
+        virtual bool dontLoadMoreData() override
+        {
+            return false;   // Always get more data
+        }
+        virtual int_type underflow() override
         {
             {
                 std::unique_lock<std::mutex> lock(mutex);
