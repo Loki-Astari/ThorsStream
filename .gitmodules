@@ -1,0 +1,3 @@
+[submodule "docSource/themes/documentation"]
+	path = docSource/themes/documentation
+	url = git@github.com:Loki-Astari/andvari-theme-documentation.git
