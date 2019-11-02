@@ -73,6 +73,11 @@ class IThorSimpleStream: public std::istream
 
             return EOF;
         }
+        virtual bool dontLoadMoreData()
+        {
+            return ((!empty) && (readStrat == OneBlock));
+        }
+
         friend size_t writeFunc(char* ptr, size_t size, size_t nmemb, void* userdata)
         {
             if (userdata == nullptr)
@@ -84,7 +89,7 @@ class IThorSimpleStream: public std::istream
             SimpleSocketStreamBuffer*       owner = reinterpret_cast<SimpleSocketStreamBuffer*>(userdata);
             std::unique_lock<std::mutex>    lock(owner->mutex);
 
-            if ((!owner->empty) && (owner->readStrat == OneBlock))
+            if (owner->dontLoadMoreData())
             {
                 // Its not bad yet.
                 // It only becomes bad if the user tries
