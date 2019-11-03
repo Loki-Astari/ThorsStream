@@ -16954,6 +16954,12 @@ fi
 
 
 
+
+$as_echo "#define HEADER_ONLY 0" >>confdefs.h
+
+
+$as_echo "#define HEADER_ONLY_INCLUDE /**/" >>confdefs.h
+
 am__api_version='1.16'
 
 # Find a good install program.  We prefer a C program (faster),

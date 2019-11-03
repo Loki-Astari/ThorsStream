@@ -48,6 +48,12 @@
 /* Define to 1 if you have the <unistd.h> header file. */
 #undef HAVE_UNISTD_H
 
+/* Enable to use header only libraries */
+#undef HEADER_ONLY
+
+/* For header only convery to inline */
+#undef HEADER_ONLY_INCLUDE
+
 /* Define to the sub-directory where libtool stores uninstalled libraries. */
 #undef LT_OBJDIR
 

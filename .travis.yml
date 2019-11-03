@@ -23,5 +23,6 @@ script:
     - ./configure --with-boost=/tmp/extra
     - export PATH=${PATH}:$(pwd)/build/bin;make
 after_success:
+    - "./CreateHeaderOnly"
     - bash <(curl -s https://codecov.io/bash)
 

@@ -1,0 +1,20 @@
+#!/bin/bash -v
+
+for loop in src/SocketStream/*.cpp; do
+    file=${loop##*/}
+    base=${file%%.cpp}
+    echo cp ${file} build/include/ThorSocketStream/${base}.source
+    cp ${loop} build/include/ThorSocketStream/${base}.source
+done
+
+git clone --single-branch --branch header-only https://Loki-Astari:${TMP}@github.com/Loki-Astari/ThorsStream.git /tmp/TS
+
+rm /tmp/TS/ThorSocketStream/*
+cp build/include/ThorSocketStream/*  /tmp/TS/ThorSocketStream/
+cd /tmp/TS
+git checkout ThorSocketStream/ThorsStreamConfig.h
+
+git add ThorSocketStream/*
+git commit -m "Update the header only build to latest version"
+git push
+
