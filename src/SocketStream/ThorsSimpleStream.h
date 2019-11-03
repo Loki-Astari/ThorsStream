@@ -98,12 +98,14 @@ class IThorSimpleStream: public std::istream
             swap(curl,          other.curl);
             swap(markStreamBad, other.markStreamBad);
 
-            if (curl) {
+            if (curl)
+            {
                 curl_easy_setopt(curl, CURLOPT_WRITEHEADER,         this);
                 curl_easy_setopt(curl, CURLOPT_WRITEDATA,           this);
                 curl_easy_setopt(curl, CURLOPT_PRIVATE,             this);
             }
-            if (other.curl) {
+            if (other.curl)
+            {
                 curl_easy_setopt(other.curl, CURLOPT_WRITEHEADER,   &other);
                 curl_easy_setopt(other.curl, CURLOPT_WRITEDATA,     &other);
                 curl_easy_setopt(other.curl, CURLOPT_PRIVATE,       &other);
@@ -112,8 +114,8 @@ class IThorSimpleStream: public std::istream
 
         ~SimpleSocketStreamBuffer()
         {
-            if (curl) {
-                curl_easy_cleanup(curl);
+            if (curl)
+            {   curl_easy_cleanup(curl);
             }
         }
         virtual int_type underflow()
