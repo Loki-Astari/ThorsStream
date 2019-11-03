@@ -14,3 +14,11 @@ An socket library that treats a socket like a regular io-stream.
 * [Documentation Usage](doc/usage.md)
 * [Documentation Internal](doc/internal.md)
 
+### Testing
+
+When building this library it will automatically run the unit tests. The unit test require that the files in "src/SocketStream/test/data/" can be retireved via http requests. If you have have a web server up and running this is simple just link the directory to your web root. If you don't have one installed the easiest way is to use npm to install a simple http-server:
+
+    sudo apt-get install npm -y
+    npm install -g http-server
+    http-server src/SocketStream/test/data/ &
+
