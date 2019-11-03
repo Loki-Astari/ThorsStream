@@ -77,15 +77,34 @@ class IThorStream: public std::istream
         typedef IThorSimpleStream::SimpleSocketStreamBuffer::traits_type    traits;
         typedef traits::int_type                                            int_type;
 
+        SocketStreamBuffer()
+            : SimpleSocketStreamBuffer()
+        {}
         SocketStreamBuffer(std::string const& url, std::function<void()> markStreamBad)
             : SimpleSocketStreamBuffer(url, IThorSimpleStream::Manually, IThorSimpleStream::OneBlock, markStreamBad)
         {
             /* Perform the request, res will get the return code */
             ThorStreamManager::defaultManager().addHTTPRequest(curl);
         }
+        SocketStreamBuffer(SocketStreamBuffer& copy)            = delete;
+        SocketStreamBuffer operator=(SocketStreamBuffer& copy)  = delete;
+        SocketStreamBuffer(SocketStreamBuffer&& move) noexcept
+            : SimpleSocketStreamBuffer(std::move(move))
+        {
+            swap(move);
+        }
+        SocketStreamBuffer& operator=(SocketStreamBuffer&& move) noexcept
+        {
+            swap(move);
+            return *this;
+        }
         ~SocketStreamBuffer()
         {
             ThorStreamManager::defaultManager().delHTTPRequest(curl);
+        }
+        void swap(SocketStreamBuffer& other) noexcept
+        {
+            SimpleSocketStreamBuffer::swap(other);
         }
         virtual bool dontLoadMoreData() override
         {
@@ -121,14 +140,39 @@ class IThorStream: public std::istream
 
     public:
         IThorStream(std::string const& url)
-            : std::istream(NULL)
+            : std::istream(nullptr)
             , buffer(url, [this](){this->setstate(std::ios::badbit);})
         {
             std::istream::rdbuf(&buffer);
+        }
+        IThorStream(IThorStream& copy)              = delete;
+        IThorStream& operator=(IThorStream& copy)   = delete;
+        IThorStream(IThorStream&& move) noexcept
+            : std::istream(nullptr)
+            , buffer()
+        {
+            swap(move);
+        }
+        IThorStream& operator=(IThorStream&& move) noexcept
+        {
+            swap(move);
+            return *this;
+        }
+        void swap(IThorStream& other) noexcept
+        {
+            std::istream::swap(other);
+
+            using std::swap;
+            swap(buffer, other.buffer);
         }
 };
 
     }
 }
+
+#if defined(HEADER_ONLY) && HEADER_ONLY == 1
+#include "ThorsStream.source"
+#endif
+
 
 #endif

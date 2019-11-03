@@ -31,6 +31,16 @@ class IThorSimpleStream: public std::istream
         typedef std::streambuf::traits_type traits;
         typedef traits::int_type            int_type;
 
+        SimpleSocketStreamBuffer()
+            : empty(true)
+            , open(false)
+            , sizeMarked(false)
+            , droppedData(false)
+            , readStrat(OneBlock)
+            , sizeLeft(0)
+            , curl(nullptr)
+            , markStreamBad([](){})
+        {}
         SimpleSocketStreamBuffer(std::string const& url, RetrieveStratergy retrStrat, ReadStraergy readStrat, std::function<void()> markStreamBad)
             : empty(true)
             , open(true)
@@ -61,9 +71,50 @@ class IThorSimpleStream: public std::istream
                 }
             }
         }
+        SimpleSocketStreamBuffer(SimpleSocketStreamBuffer& copy)                = delete;
+        SimpleSocketStreamBuffer& operator=(SimpleSocketStreamBuffer& copy)     = delete;
+        SimpleSocketStreamBuffer(SimpleSocketStreamBuffer&& move) noexcept
+            : SimpleSocketStreamBuffer()
+        {
+            swap(move);
+        }
+        SimpleSocketStreamBuffer& operator=(SimpleSocketStreamBuffer&& move) noexcept
+        {
+            swap(move);
+            return *this;
+        }
+        void swap(SimpleSocketStreamBuffer& other) noexcept
+        {
+            std::streambuf::swap(other);
+
+            using std::swap;
+            swap(empty,         other.empty);
+            swap(open,          other.open);
+            swap(sizeMarked,    other.sizeMarked);
+            swap(droppedData,   other.droppedData);
+            swap(readStrat,     other.readStrat);
+            swap(sizeLeft,      other.sizeLeft);
+            swap(buffer,        other.buffer);
+            swap(curl,          other.curl);
+            swap(markStreamBad, other.markStreamBad);
+
+            if (curl) {
+                curl_easy_setopt(curl, CURLOPT_WRITEHEADER,         this);
+                curl_easy_setopt(curl, CURLOPT_WRITEDATA,           this);
+                curl_easy_setopt(curl, CURLOPT_PRIVATE,             this);
+            }
+            if (other.curl) {
+                curl_easy_setopt(other.curl, CURLOPT_WRITEHEADER,   &other);
+                curl_easy_setopt(other.curl, CURLOPT_WRITEDATA,     &other);
+                curl_easy_setopt(other.curl, CURLOPT_PRIVATE,       &other);
+            }
+        }
+
         ~SimpleSocketStreamBuffer()
         {
-            curl_easy_cleanup(curl);
+            if (curl) {
+                curl_easy_cleanup(curl);
+            }
         }
         virtual int_type underflow()
         {
@@ -172,6 +223,23 @@ class IThorSimpleStream: public std::istream
             , buffer(url, EasyCurl, readStrat, [this](){this->setstate(std::ios::badbit);})
         {
             std::istream::rdbuf(&buffer);
+        }
+        IThorSimpleStream(IThorSimpleStream&& move) noexcept
+            : std::istream(nullptr)
+            , buffer()
+        {
+            swap(move);
+        }
+        IThorSimpleStream& operator=(IThorSimpleStream&& move) noexcept
+        {
+            swap(move);
+            return *this;
+        }
+        void swap(IThorSimpleStream& other) noexcept
+        {
+            std::istream::swap(other);
+            using std::swap;
+            swap(buffer, other.buffer);
         }
 };
 
