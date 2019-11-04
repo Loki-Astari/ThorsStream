@@ -7,7 +7,7 @@ An alternative version of the class can be used. This will download the data asy
 
 ````c++
     // Asynchronous download of data.
-    // Requires you to link against ThorSocketStream14.so (or whatever platform extension for shared libraries).
+    // Requires you to link against ThorSocketStream17.so (or whatever platform extension for shared libraries).
     //
     #include "ThorSocketStream/ThorsStream.h"
 

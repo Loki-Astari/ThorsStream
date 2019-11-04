@@ -12,7 +12,7 @@ An socket library that treats a socket like a regular io-stream.
 * [Bigger Example](doc/example2.md)
 * [Building](doc/building.md)
 * [Documentation Usage](doc/usage.md)
-* [Documentation Internal](doc/internal.md)
+* [Documentation Internal](https://lokiastari.com/ThorsStream/)
 
 ### Testing
 

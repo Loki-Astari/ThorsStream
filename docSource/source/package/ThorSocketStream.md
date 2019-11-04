@@ -4,6 +4,6 @@ generate: false
 nameSpace:  ThorsAnvil::Stream
 headers:
     base: ThorSocketStream
-    files: []
+    files:
 children: []
 ---

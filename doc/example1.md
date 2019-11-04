@@ -37,6 +37,8 @@ The first version is designed for speed and ease of use. The cost is that it may
 ````c++
     // Header only library
     #include "ThorSocketStream/ThorsSimpleStream.h"
+    #include <string>
+    #include <iostream>
 
     int main()
     {
@@ -47,7 +49,7 @@ The first version is designed for speed and ease of use. The cost is that it may
         //
         // This may result in slower usage if you have a big file.
         //
-        thor::IThorSimpleStream     stream("https://api.twitter.com/1.1/help/privacy.json", true);
+        thor::IThorSimpleStream     stream("https://api.twitter.com/1.1/help/privacy.json", thor::IThorSimpleStream::Greedy);
 
         std::string line;
         while(std::getline(stream, line))

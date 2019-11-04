@@ -10,8 +10,10 @@ namespace ThorsAnvil
     namespace Stream
     {
 
+// @class-api
 class IThorStream: public std::istream
 {
+    // @class-internal
     // Class to handle the down-loading of all http connections in the background.
     class ThorStreamManager
     {
@@ -23,6 +25,7 @@ class IThorStream: public std::istream
                 return defaultManager;
             }
 
+            // @method
             ThorStreamManager()
                 : finished(false)
                 , multi(curl_multi_init())
@@ -32,6 +35,7 @@ class IThorStream: public std::istream
                 {   throw std::runtime_error("Failed to startup");
                 }
             }
+            // @method
             ~ThorStreamManager()
             {
                 // When destroying the object.
@@ -47,12 +51,16 @@ class IThorStream: public std::istream
                 curl_multi_cleanup(multi);
             }
 
+            // @method
+            // @param   easy    curl easy handle
             // Interface to add/remove http requests.
             void addHTTPRequest(CURL* easy)
             {
                 std::unique_lock<std::mutex> lock(mutex);
                 curl_multi_add_handle(multi, easy);
             }
+            // @method
+            // @param   easy    curl easy handle
             void delHTTPRequest(CURL* easy)
             {
                 std::unique_lock<std::mutex> lock(mutex);
@@ -70,6 +78,7 @@ class IThorStream: public std::istream
             std::condition_variable     cond;
             std::thread                 streamThread;
     };
+    // @class-internal
     // The stream buffer.
     class SocketStreamBuffer: public IThorSimpleStream::SimpleSocketStreamBuffer
     {
@@ -139,6 +148,15 @@ class IThorStream: public std::istream
     SocketStreamBuffer    buffer;
 
     public:
+        // @method
+        // @param   url     The url to read.
+        //
+        // A background thread reads the data from the URL.
+        // reading from the stream when no data is available will cause the read to block
+        // until data has been retrieved and is now available.
+        //
+        // Multiple IThorStream objects will use the same thread to download data as we are
+        // using the curl multi handle to handle all the connections simultaneously.
         IThorStream(std::string const& url)
             : std::istream(nullptr)
             , buffer(url, [this](){this->setstate(std::ios::badbit);})

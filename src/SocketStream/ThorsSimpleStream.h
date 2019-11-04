@@ -15,10 +15,17 @@ namespace ThorsAnvil
     namespace Stream
     {
 
-extern "C"  size_t writeFunc(char* ptr, size_t size, size_t nmemb, void* userdata);
-extern "C"  size_t headFunc(char* ptr, size_t size, size_t nmemb, void* userdata);
+// @function-internal
+// curl callback function to read the data body
+extern "C"
+size_t writeFunc(char* ptr, size_t size, size_t nmemb, void* userdata);
+// @function-internal
+// curl callback function to read the response header
+extern "C"
+size_t headFunc(char* ptr, size_t size, size_t nmemb, void* userdata);
 
 class IThorStream;
+// @class-api
 class IThorSimpleStream: public std::istream
 {
     public:
@@ -26,6 +33,7 @@ class IThorSimpleStream: public std::istream
         enum ReadStraergy       { OneBlock, Greedy };
     private:
     friend class IThorStream;
+    // @class-internal
     struct SimpleSocketStreamBuffer: public std::streambuf
     {
         typedef std::streambuf::traits_type traits;
@@ -220,6 +228,15 @@ class IThorSimpleStream: public std::istream
     SimpleSocketStreamBuffer    buffer;
 
     public:
+        // @method
+        // @param   url         The url you want to stream.
+        // @param   readStrat   OneBlock:   Simply reads one block of data from the server. Greedy will read all the data from the server on construction.
+        //
+        // Constructs an std::istream object that streams data from the given url.
+        // Uses curl underneath the hood to retrieve the data.
+        //
+        // A read from a stream with no more data (even if it is not all the data will cause an error.
+        // If you need to gurantee you get all the data then use `IThorStream`.
         IThorSimpleStream(std::string const& url, ReadStraergy readStrat = OneBlock)
             : std::istream(nullptr)
             , buffer(url, EasyCurl, readStrat, [this](){this->setstate(std::ios::badbit);})

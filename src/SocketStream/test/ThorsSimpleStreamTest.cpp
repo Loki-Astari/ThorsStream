@@ -9,6 +9,12 @@
  *
  * Note: If the environment variable THOR_STREAM_TEST_PORT is set
  *       It will use that port on the to try and connect to the web server.
+ *
+ * An easy way to set this up is:
+ *      brew install node.js
+ *      npm install -g http-server
+ *      http-server src/SocketStream/test/data/ &
+ *      export THOR_STREAM_TEST_PORT=8080
  */
 
 TEST(ThorsSimpleStreamTest, NormalOperation)

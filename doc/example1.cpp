@@ -15,7 +15,7 @@ int main(int argc, char* argv[])
     // Note: If the HTTP response is not 200 OK then the bad bit is set.
     //
     bool all = argc > 1;
-    thor::IThorSimpleStream     stream("https://api.twitter.com/1.1/help/privacy.json", all);
+    thor::IThorSimpleStream     stream("https://api.twitter.com/1.1/help/privacy.json");
 
     std::string line;
     while(std::getline(stream, line))

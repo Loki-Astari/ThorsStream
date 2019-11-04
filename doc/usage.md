@@ -27,7 +27,7 @@
 
     Defined in:     ThorsSocketStream/ThorsStream.h
     Interface:      std::istream
-    libraries:      -lThorSocketStream14 -lcurl
+    libraries:      -lThorSocketStream17 -lcurl
     Constructor:
         IThorStream(std::string const& url)
 
