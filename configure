@@ -702,19 +702,21 @@ LIBTOOL
 COV
 CXX_STD_FLAG
 CXXSTDVER
+ExpFlag20
 ExpFlag17
 ExpFlag14
 ExpFlag11
 CXXExpLanguage
+StdFlag20
 StdFlag17
 StdFlag14
 StdFlag11
 CXXMaxLanguage
 NO_DEPRECATED_REGISTER_TEST
 NO_UNUSED_PRIVATE_FIELD_TEST
+TestVera
 THOR_TARGETLIBS
 VERATOOL
-TestVera
 BOOST_PYTHON_LIB
 PYTHON_EXTRA_LDFLAGS
 PYTHON_EXTRA_LIBS
@@ -2314,9 +2316,10 @@ if [ ! -e build/Notes ]; then
     git submodule init
     git submodule update
 fi
+ln -s .build build | echo "Build Already Setup"
 
 ac_aux_dir=
-for ac_dir in build/autotools/build "$srcdir"/build/autotools/build; do
+for ac_dir in .build/autotools/build "$srcdir"/.build/autotools/build; do
   if test -f "$ac_dir/install-sh"; then
     ac_aux_dir=$ac_dir
     ac_install_sh="$ac_aux_dir/install-sh -c"
@@ -2332,7 +2335,7 @@ for ac_dir in build/autotools/build "$srcdir"/build/autotools/build; do
   fi
 done
 if test -z "$ac_aux_dir"; then
-  as_fn_error $? "cannot find install-sh, install.sh, or shtool in build/autotools/build \"$srcdir\"/build/autotools/build" "$LINENO" 5
+  as_fn_error $? "cannot find install-sh, install.sh, or shtool in .build/autotools/build \"$srcdir\"/.build/autotools/build" "$LINENO" 5
 fi
 
 # These three variables are undocumented and unsupported,
@@ -4785,7 +4788,6 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
     git submodule update --init --recursive
 
-
     # Check whether --enable-vera was given.
 if test "${enable_vera+set}" = set; then :
   enableval=$enable_vera;
@@ -4802,6 +4804,52 @@ fi
 else
 
             VERATOOL='vera++';
+
+
+fi
+    VERATOOL=${VERATOOL}
+
+
+    THOR_TARGETLIBS=""
+    if test "x$enable_shared" == "xyes"; then :
+  THOR_TARGETLIBS+=" slib"
+
+fi
+    if test "x$enable_static" == "xyes"; then :
+  THOR_TARGETLIBS+=" a"
+
+fi
+    if test "x$THOR_TARGETLIBS" == "x"; then :
+  THOR_TARGETLIBS="slib"
+
+fi
+
+    THOR_TARGETLIBS=${THOR_TARGETLIBS}
+
+
+
+
+
+# Check whether --with-hostbuild was given.
+if test "${with_hostbuild+set}" = set; then :
+  withval=$with_hostbuild;
+fi
+
+
+    if test "x${with_hostbuild}" != "x"; then :
+
+            rm build
+            ln -s ${with_hostbuild} build
+
+
+fi
+
+
+    if test "x${with_hostbuild}" == "x"; then :
+
+
+    if test "x$enable_vera" != "xno"; then :
+
             ./build/third/vera-install
             for ac_prog in vera++
 do
@@ -4862,45 +4910,6 @@ fi
 
 
 fi
-    VERATOOL=${VERATOOL}
-
-
-    THOR_TARGETLIBS=""
-    if test "x$enable_shared" == "xyes"; then :
-  THOR_TARGETLIBS+=" slib"
-
-fi
-    if test "x$enable_static" == "xyes"; then :
-  THOR_TARGETLIBS+=" a"
-
-fi
-    if test "x$THOR_TARGETLIBS" == "x"; then :
-  THOR_TARGETLIBS="slib"
-
-fi
-
-    THOR_TARGETLIBS=${THOR_TARGETLIBS}
-
-
-
-
-
-# Check whether --with-hostbuild was given.
-if test "${with_hostbuild+set}" = set; then :
-  withval=$with_hostbuild;
-fi
-
-
-    if test "${with_hostbuild}" != ""; then :
-
-            rm -rf build;
-            ln -s ${with_hostbuild} build
-
-
-fi
-
-
-    if test "${with_hostbuild}" == ""; then :
 
             pushd build/third
             ./setup "$CXX" || as_fn_error 1 "Failed to set up the test utilities" "$LINENO" 5
@@ -5415,6 +5424,43 @@ else
   :
 fi
 
+        { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether C++ compiler accepts -std=c++20" >&5
+$as_echo_n "checking whether C++ compiler accepts -std=c++20... " >&6; }
+if ${ax_cv_check_cxxflags___std_cpp20+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+
+  ax_check_save_flags=$CXXFLAGS
+  CXXFLAGS="$CXXFLAGS  -std=c++20"
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+int
+main ()
+{
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_cxx_try_compile "$LINENO"; then :
+  ax_cv_check_cxxflags___std_cpp20=yes
+else
+  ax_cv_check_cxxflags___std_cpp20=no
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+  CXXFLAGS=$ax_check_save_flags
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ax_cv_check_cxxflags___std_cpp20" >&5
+$as_echo "$ax_cv_check_cxxflags___std_cpp20" >&6; }
+if test "x$ax_cv_check_cxxflags___std_cpp20" = xyes; then :
+  CXXMaxLanguage=20
+ StdFlag20=-std=c++20
+
+else
+  :
+fi
+
         { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether C++ compiler accepts -std=c++1x" >&5
 $as_echo_n "checking whether C++ compiler accepts -std=c++1x... " >&6; }
 if ${ax_cv_check_cxxflags___std_cpp1x+:} false; then :
@@ -5521,6 +5567,43 @@ $as_echo "$ax_cv_check_cxxflags___std_cpp1z" >&6; }
 if test "x$ax_cv_check_cxxflags___std_cpp1z" = xyes; then :
   CXXExpLanguage=17
  ExpFlag17=-std=c++1z
+
+else
+  :
+fi
+
+        { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether C++ compiler accepts -std=c++2a" >&5
+$as_echo_n "checking whether C++ compiler accepts -std=c++2a... " >&6; }
+if ${ax_cv_check_cxxflags___std_cpp2a+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+
+  ax_check_save_flags=$CXXFLAGS
+  CXXFLAGS="$CXXFLAGS  -std=c++2a"
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+int
+main ()
+{
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_cxx_try_compile "$LINENO"; then :
+  ax_cv_check_cxxflags___std_cpp2a=yes
+else
+  ax_cv_check_cxxflags___std_cpp2a=no
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+  CXXFLAGS=$ax_check_save_flags
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ax_cv_check_cxxflags___std_cpp2a" >&5
+$as_echo "$ax_cv_check_cxxflags___std_cpp2a" >&6; }
+if test "x$ax_cv_check_cxxflags___std_cpp2a" = xyes; then :
+  CXXExpLanguage=20
+ ExpFlag20=-std=c++2a
 
 else
   :
@@ -20389,7 +20472,9 @@ $as_echo X/"$am_mf" |
     { { $as_echo "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
 $as_echo "$as_me: error: in \`$ac_pwd':" >&2;}
 as_fn_error $? "Something went wrong bootstrapping makefile fragments
-    for automatic dependency tracking.  Try re-running configure with the
+    for automatic dependency tracking.  If GNU make was not used, consider
+    re-running the configure script with MAKE=\"gmake\" (or whatever is
+    necessary).  You can also try re-running configure with the
     '--disable-dependency-tracking' option to at least be able to build
     the package (albeit without support for automatic dependency tracking).
 See \`config.log' for more details" "$LINENO" 5; }
